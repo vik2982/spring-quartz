@@ -1,0 +1,65 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<beans xmlns="http://www.springframework.org/schema/beans"
+	xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+	xsi:schemaLocation="http://www.springframework.org/schema/beans
+	     http://www.springframework.org/schema/beans/spring-beans-2.5.xsd">
+
+	<!-- The bean which contains your business functionality -->
+	<bean id="exampleBusinessObject" class="com.va.spring.quartz.ExampleBusinessObject" />
+	
+
+	<bean id="jobOne"
+		class="org.springframework.scheduling.quartz.MethodInvokingJobDetailFactoryBean">
+		<property name="targetObject" ref="exampleBusinessObject" />
+		<property name="targetMethod" value="doIt" />
+		<!-- To turn off concurrency uncomment following line -->
+		<!-- <property name="concurrent" value="false" /> -->
+	</bean>
+
+	
+	<bean name="jobTwo"
+	class="org.springframework.scheduling.quartz.JobDetailBean">
+ 
+		<property name="jobClass" value="com.va.spring.quartz.RunMeJob" />
+ 
+		<property name="jobDataAsMap">
+			<map>
+				<entry key="exampleBusinessObject" value-ref="exampleBusinessObject" />
+			</map>
+		</property>
+ 
+	</bean>
+
+	<!-- A couple of triggers -->
+	
+	<bean id="simpleTrigger" class="org.springframework.scheduling.quartz.SimpleTriggerBean">
+		<property name="jobDetail" ref="jobOne" />
+		<!-- 10 seconds -->
+		<property name="startDelay" value="10000" />
+		<!-- repeat every 60 seconds -->
+		<property name="repeatInterval" value="60000" />
+	</bean>
+	
+	<bean id="cronTrigger"
+		class="org.springframework.scheduling.quartz.CronTriggerBean">
+		<property name="jobDetail" ref="jobTwo" />
+		<!-- repeat every 5 seconds -->
+		<!-- <property name="cronExpression" value="0/5 * * * * ?" />  -->
+		
+		<!-- repeat every minute -->
+		<property name="cronExpression" value="0 0/1 * * * ?" />
+	</bean>
+
+	 
+	<bean class="org.springframework.scheduling.quartz.SchedulerFactoryBean">
+		<property name="triggers">
+			<list>
+				<ref bean="simpleTrigger" /> 
+				<ref bean="cronTrigger" />
+			</list>
+		</property>
+	</bean>
+	
+
+</beans>
